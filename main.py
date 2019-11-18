@@ -50,7 +50,18 @@ class ClientServerProtocol(asyncio.Protocol):
                 return 'written\n\n'
 
     def get_metric(self, data_send):
-        pass
+        if data_send[1] == '':
+            return 'error\nwrong command\n\n'
+        if data_send[1] is '*':
+            list_ = []
+            for key in self.metrcics_list:
+                list_.append(f'{key}: {self.metrcics_list[key]}')
+            return list_
+        else:
+            if data_send[1] in self.metrcics_list:
+                return f'{data_send[1]}: {self.metrcics_list[data_send[1]]}'
+            else:
+                return 'there\nis\nno metric\n\n'
 
 
 def main():
