@@ -97,24 +97,6 @@ class Client:
             raise ClientSocketError("error close connection", err)
 
 
-def _main():
-    # проверка работы клиента
-    run_server("127.0.0.1", 8888)
-    client = Client("127.0.0.1", 8888, timeout=5)
-    client.put("test", 0.5, timestamp=1)
-    client.put("test", 2.0, timestamp=2)
-    client.put("test", 0.5, timestamp=3)
-    client.put("load", 3, timestamp=4)
-    client.put("load", 4, timestamp=5)
-    print(client.get("*"))
-
-    client.close()
-
-
-if __name__ == '__main__':
-    _main()
-
-
 def run_server(host, port):
     loop = asyncio.get_event_loop()
     new_conn = loop.create_server(ClientServerProtocol, str(host), int(port))
@@ -137,6 +119,8 @@ class ClientServerProtocol(asyncio.Protocol):
         get_data = await data.read(1024)
         try:
             data_ = str(get_data.decode()).split()
+            if data_ == ['']:
+                print('error\nwrong command\n\n')
             if data_[0] is 'put':
                 self.put_metric(data_)
             if data_[0] is 'get':
@@ -168,3 +152,21 @@ class ClientServerProtocol(asyncio.Protocol):
             for i in metrics:
                 if i.split()[0] == data[1]:
                     print(i[:-1])
+
+
+def _main():
+    # проверка работы клиента
+    run_server("127.0.0.1", 8888)
+    client = Client("127.0.0.1", 8888, timeout=5)
+    client.put("test", 0.5, timestamp=1)
+    client.put("test", 2.0, timestamp=2)
+    client.put("test", 0.5, timestamp=3)
+    client.put("load", 3, timestamp=4)
+    client.put("load", 4, timestamp=5)
+    print(client.get("*"))
+
+    client.close()
+
+
+if __name__ == '__main__':
+    _main()
